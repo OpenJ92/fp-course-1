@@ -43,8 +43,7 @@ instance Show t => Show (List t) where
   show = show . foldRight (:) []
 
 -- The list of integers from zero to infinity.
-infinity ::
-  List Integer
+infinity :: List Integer
 infinity =
   let inf x = x :. inf (x+1)
   in inf 0
@@ -71,12 +70,9 @@ foldLeft f b (h :. t) = let b' = f b h in b' `seq` foldLeft f b' t
 -- prop> \x -> x `headOr` infinity == 0
 --
 -- prop> \x -> x `headOr` Nil == x
-headOr ::
-  a
-  -> List a
-  -> a
-headOr =
-  error "todo: Course.List#headOr"
+headOr :: a -> List a -> a
+headOr dflt Nil = dflt
+headOr _    (head :. tail) = head
 
 -- | The product of the elements of a list.
 --
@@ -88,11 +84,8 @@ headOr =
 --
 -- >>> product (1 :. 2 :. 3 :. 4 :. Nil)
 -- 24
-product ::
-  List Int
-  -> Int
-product =
-  error "todo: Course.List#product"
+product :: List Int -> Int
+product = foldRight (*) (1)
 
 -- | Sum the elements of the list.
 --
@@ -103,11 +96,8 @@ product =
 -- 10
 --
 -- prop> \x -> foldLeft (-) (sum x) x == 0
-sum ::
-  List Int
-  -> Int
-sum =
-  error "todo: Course.List#sum"
+sum :: List Int -> Int
+sum = foldRight (+) (0)
 
 -- | Return the length of the list.
 --
@@ -115,11 +105,8 @@ sum =
 -- 3
 --
 -- prop> \x -> sum (map (const 1) x) == length x
-length ::
-  List a
-  -> Int
-length =
-  error "todo: Course.List#length"
+length :: List a -> Int
+length = foldRight (\_ acc -> acc + 1) (0)
 
 -- | Map the given function on each element of the list.
 --
@@ -129,12 +116,9 @@ length =
 -- prop> \x -> headOr x (map (+1) infinity) == 1
 --
 -- prop> \x -> map id x == x
-map ::
-  (a -> b)
-  -> List a
-  -> List b
-map =
-  error "todo: Course.List#map"
+map :: (a -> b) -> List a -> List b
+map f (x :. xs) = f x :. map f xs
+map _ Nil       = Nil
 
 -- | Return elements satisfying the given predicate.
 --
@@ -146,12 +130,11 @@ map =
 -- prop> \x -> filter (const True) x == x
 --
 -- prop> \x -> filter (const False) x == Nil
-filter ::
-  (a -> Bool)
-  -> List a
-  -> List a
-filter =
-  error "todo: Course.List#filter"
+filter :: (a -> Bool) -> List a -> List a
+filter pred (x :. xs) 
+  | pred x    = x :. filter pred xs
+  | otherwise = filter pred xs 
+filter _ Nil = Nil
 
 -- | Append two lists to a new list.
 --
@@ -165,13 +148,9 @@ filter =
 -- prop> \x -> (x ++ y) ++ z == x ++ (y ++ z)
 --
 -- prop> \x -> x ++ Nil == x
-(++) ::
-  List a
-  -> List a
-  -> List a
-(++) =
-  error "todo: Course.List#(++)"
-
+(++) :: List a -> List a -> List a
+(++) (x :. xs) ys = x :. ((++) xs ys)
+(++) (Nil    ) ys = ys 
 infixr 5 ++
 
 -- | Flatten a list of lists to a list.
@@ -184,11 +163,8 @@ infixr 5 ++
 -- prop> \x -> headOr x (flatten (y :. infinity :. Nil)) == headOr 0 y
 --
 -- prop> \x -> sum (map length x) == length (flatten x)
-flatten ::
-  List (List a)
-  -> List a
-flatten =
-  error "todo: Course.List#flatten"
+flatten :: List (List a) -> List a
+flatten = foldRight (++) (Nil)
 
 -- | Map a function then flatten to a list.
 --
@@ -200,22 +176,17 @@ flatten =
 -- prop> \x -> headOr x (flatMap id (y :. infinity :. Nil)) == headOr 0 y
 --
 -- prop> \x -> flatMap id (x :: List (List Int)) == flatten x
-flatMap ::
-  (a -> List b)
-  -> List a
-  -> List b
-flatMap =
-  error "todo: Course.List#flatMap"
+-- 
+-- Look to construct as point free. flatten . map f did not work
+flatMap :: (a -> List b) -> List a -> List b
+flatMap f  xs = flatten $ map f xs
 
 -- | Flatten a list of lists to a list (again).
 -- HOWEVER, this time use the /flatMap/ function that you just wrote.
 --
 -- prop> \x -> let types = x :: List (List Int) in flatten x == flattenAgain x
-flattenAgain ::
-  List (List a)
-  -> List a
-flattenAgain =
-  error "todo: Course.List#flattenAgain"
+flattenAgain :: List (List a) -> List a
+flattenAgain = flatMap id
 
 -- | Convert a list of optional values to an optional list of values.
 --
@@ -239,9 +210,7 @@ flattenAgain =
 --
 -- >>> seqOptional (Empty :. map Full infinity)
 -- Empty
-seqOptional ::
-  List (Optional a)
-  -> Optional (List a)
+seqOptional :: List (Optional a) -> Optional (List a)
 seqOptional =
   error "todo: Course.List#seqOptional"
 
