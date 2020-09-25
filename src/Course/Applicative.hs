@@ -174,7 +174,7 @@ lift3 f fa fb fc = f <$> fa <*> fb <*> fc
 -- >>> lift4 (\a b c d -> a + b + c + d) length sum product (sum . filter even) (listh [4,5,6])
 -- 148
 lift4 :: Applicative f => (a -> b -> c -> d -> e) -> f a -> f b -> f c -> f d -> f e
-lift4 f fa fb fc fd = f <$> fa <$> fb <$> fc <$> fd
+lift4 f fa fb fc fd = f <$> fa <*> fb <*> fc <*> fd
 
 -- | Apply a nullary function in the environment.
 lift0 :: Applicative f => a -> f a
@@ -234,11 +234,7 @@ lift1 f fa = f <$> fa
 -- prop> \x y z a b c -> (x :. y :. z :. Nil) <* (a :. b :. c :. Nil) == (x :. x :. x :. y :. y :. y :. z :. z :. z :. Nil)
 --
 -- prop> \x y -> Full x <* Full y == Full x
-(<*) ::
-  Applicative f =>
-  f b
-  -> f a
-  -> f b
+(<*) :: Applicative f => f b -> f a -> f b
 (<*) =
   error "todo: Course.Applicative#(<*)"
 
