@@ -254,12 +254,9 @@ lift1 f fa = f <$> fa
 --
 -- >>> sequence ((*10) :. (+2) :. Nil) 6
 -- [60,8]
-sequence ::
-  Applicative f =>
-  List (f a)
-  -> f (List a)
-sequence =
-  error "todo: Course.Applicative#sequence"
+sequence :: Applicative f => List (f a) -> f (List a)
+sequence (x :. xs) = pure (:.) <*> x <*> sequence xs
+sequence (Nil    ) = pure Nil
 
 -- | Replicate an effect a given number of times.
 --
@@ -277,13 +274,8 @@ sequence =
 --
 -- >>> replicateA 3 ('a' :. 'b' :. 'c' :. Nil)
 -- ["aaa","aab","aac","aba","abb","abc","aca","acb","acc","baa","bab","bac","bba","bbb","bbc","bca","bcb","bcc","caa","cab","cac","cba","cbb","cbc","cca","ccb","ccc"]
-replicateA ::
-  Applicative f =>
-  Int
-  -> f a
-  -> f (List a)
-replicateA =
-  error "todo: Course.Applicative#replicateA"
+replicateA :: Applicative f => Int -> f a -> f (List a)
+replicateA n = sequence . replicate n
 
 -- | Filter a list with a predicate that produces an effect.
 --
@@ -305,10 +297,7 @@ replicateA =
 -- >>> filtering (const $ True :. True :.  Nil) (1 :. 2 :. 3 :. Nil)
 -- [[1,2,3],[1,2,3],[1,2,3],[1,2,3],[1,2,3],[1,2,3],[1,2,3],[1,2,3]]
 --
-filtering ::
-  Applicative f =>
-  (a -> f Bool)
-  -> List a
+filtering :: Applicative f => (a -> f Bool) -> List a
   -> f (List a)
 filtering =
   error "todo: Course.Applicative#filtering"
@@ -318,29 +307,14 @@ filtering =
 -----------------------
 
 instance Applicative IO where
-  pure =
-    P.return
-  f <*> a =
-    f P.>>= \f' -> P.fmap f' a
+  pure = P.return
+  f <*> a = f P.>>= \f' -> P.fmap f' a
 
-return ::
-  Applicative f =>
-  a
-  -> f a
-return =
-  pure
+return :: Applicative f => a -> f a
+return = pure
 
-fail ::
-  Applicative f =>
-  Chars
-  -> f a
-fail =
-  error . hlist
+fail :: Applicative f => Chars -> f a
+fail = error . hlist
 
-(>>) ::
-  Applicative f =>
-  f a
-  -> f b
-  -> f b
-(>>) =
-  (*>)
+(>>) :: Applicative f => f a -> f b -> f b
+(>>) = (*>)
