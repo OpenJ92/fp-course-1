@@ -210,9 +210,13 @@ flattenAgain = flatMap id
 --
 -- >>> seqOptional (Empty :. map Full infinity)
 -- Empty
+
+-- There are seemingly two forms of sequence. An applicative recursive
+-- form and a Monadic recursive form.
 seqOptional :: List (Optional a) -> Optional (List a)
-seqOptional =
-  error "todo: Course.List#seqOptional"
+seqOptional (x :. xs) = (:.) P.<$> x P.<*> seqOptional xs
+seqOptional (x :. xs) = x P.>>= \t -> seqOptional xs P.>>= \ts -> P.pure $ (t :. ts)
+seqOptional (Nil    ) = P.pure Nil
 
 -- | Find the first element in the list matching the predicate.
 --
