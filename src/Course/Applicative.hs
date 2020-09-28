@@ -10,6 +10,7 @@ import Course.ExactlyOne
 import Course.Functor
 import Course.List
 import Course.Optional
+import Control.Monad hiding (sequence, Functor)
 import qualified Prelude as P(fmap, return, (>>=))
 
 -- | All instances of the `Applicative` type-class must satisfy three laws.
@@ -235,8 +236,7 @@ lift1 f fa = f <$> fa
 --
 -- prop> \x y -> Full x <* Full y == Full x
 (<*) :: Applicative f => f b -> f a -> f b
-(<*) =
-  error "todo: Course.Applicative#(<*)"
+(<*) = flip (*>)
 
 -- | Sequences a list of structures to a structure of list.
 --
@@ -296,12 +296,16 @@ replicateA n = sequence . replicate n
 --
 -- >>> filtering (const $ True :. True :.  Nil) (1 :. 2 :. 3 :. Nil)
 -- [[1,2,3],[1,2,3],[1,2,3],[1,2,3],[1,2,3],[1,2,3],[1,2,3],[1,2,3]]
---
-filtering :: Applicative f => (a -> f Bool) -> List a
-  -> f (List a)
-filtering =
-  error "todo: Course.Applicative#filtering"
 
+applyCarry :: (Applicative f) => (a -> f Bool) -> a -> f (a, Bool)
+applyCarry f x = pure (,) <*> pure x <*> f x
+
+filtering :: Applicative f => (a -> f Bool) -> List a -> f (List a)
+filtering pred 
+  = (<$>) (map fst . filter (\(_, b) -> b==True)) 
+  . sequence 
+  . map (applyCarry pred)
+ 
 -----------------------
 -- SUPPORT LIBRARIES --
 -----------------------

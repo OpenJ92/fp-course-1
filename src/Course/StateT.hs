@@ -35,12 +35,8 @@ newtype StateT s f a =
 -- >>> runStateT ((+1) <$> (pure 2) :: StateT Int List Int) 0
 -- [(3,0)]
 instance Functor f => Functor (StateT s f) where
-  (<$>) ::
-    (a -> b)
-    -> StateT s f a
-    -> StateT s f b
-  (<$>) =
-    error "todo: Course.StateT (<$>)#instance (StateT s f)"
+  (<$>) :: (a -> b) -> StateT s f a -> StateT s f b
+  (<$>) f stateT = StateT . \s -> ((<$> . <$>) f . runStateT) stateT s
 
 -- | Implement the `Applicative` instance for @StateT s f@ given a @Monad f@.
 --
