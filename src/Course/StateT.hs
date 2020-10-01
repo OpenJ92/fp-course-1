@@ -6,6 +6,7 @@
 
 module Course.StateT where
 
+import Data.Tuple
 import Course.Core
 import Course.ExactlyOne
 import Course.Optional
@@ -23,20 +24,22 @@ import qualified Prelude as P
 -- >>> instance Arbitrary a => Arbitrary (List a) where arbitrary = P.fmap listh arbitrary
 
 -- | A `StateT` is a function from a state value `s` to a functor f of (a produced value `a`, and a resulting state `s`).
-newtype StateT s f a =
-  StateT {
-    runStateT ::
-      s
-      -> f (a, s)
-  }
+newtype StateT s f a = StateT { runStateT :: s -> f (a, s) }
 
 -- | Implement the `Functor` instance for @StateT s f@ given a @Functor f@.
 --
 -- >>> runStateT ((+1) <$> (pure 2) :: StateT Int List Int) 0
 -- [(3,0)]
+first' :: (a -> c) -> (a, b) -> (c, b)
+first' f (a, b) = (f a, b)
+
 instance Functor f => Functor (StateT s f) where
   (<$>) :: (a -> b) -> StateT s f a -> StateT s f b
-  (<$>) f stateT = StateT . \s -> ((<$> . <$>) f . runStateT) stateT s
+  (<$>) ab sfa = StateT run
+    where
+      run s = 
+        let fsa = runStateT sfa s
+	in (<$>) (first' ab) fsa
 
 -- | Implement the `Applicative` instance for @StateT s f@ given a @Monad f@.
 --
@@ -56,15 +59,10 @@ instance Functor f => Functor (StateT s f) where
 -- >>> runStateT (StateT (\s -> ((+2), s P.++ [1]) :. ((+3), s P.++ [1]) :. Nil) <*> (StateT (\s -> (2, s P.++ [2]) :. Nil))) [0]
 -- [(4,[0,1,2]),(5,[0,1,2])]
 instance Monad f => Applicative (StateT s f) where
-  pure ::
-    a
-    -> StateT s f a
+  pure :: a -> StateT s f a
   pure =
     error "todo: Course.StateT pure#instance (StateT s f)"
-  (<*>) ::
-   StateT s f (a -> b)
-    -> StateT s f a
-    -> StateT s f b
+  (<*>) :: StateT s f (a -> b) -> StateT s f a -> StateT s f b
   (<*>) =
     error "todo: Course.StateT (<*>)#instance (StateT s f)"
 
@@ -77,16 +75,12 @@ instance Monad f => Applicative (StateT s f) where
 -- >>> let modify f = StateT (\s -> pure ((), f s)) in runStateT (modify (+1) >>= \() -> modify (*2)) 7
 -- ((),16)
 instance Monad f => Monad (StateT s f) where
-  (=<<) ::
-    (a -> StateT s f b)
-    -> StateT s f a
-    -> StateT s f b
+  (=<<) :: (a -> StateT s f b) -> StateT s f a -> StateT s f b
   (=<<) =
     error "todo: Course.StateT (=<<)#instance (StateT s f)"
 
 -- | A `State'` is `StateT` specialised to the `ExactlyOne` functor.
-type State' s a =
-  StateT s ExactlyOne a
+type State' s a = StateT s ExactlyOne a
 
 -- | Provide a constructor for `State'` values
 --

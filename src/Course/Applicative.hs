@@ -214,8 +214,7 @@ lift1 f fa = f <$> fa
 --
 -- prop> \x y -> Full x *> Full y == Full y
 (*>) :: Applicative f => f a -> f b -> f b
-(*>) =
-  error "todo: Course.Applicative#(*>)"
+(*>) fa fb = id <$ fa <*> fb
 
 -- | Apply, discarding the value of the second argument.
 -- Pronounced, left apply.

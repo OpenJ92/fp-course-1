@@ -41,32 +41,19 @@ data SpecialCharacter =
   deriving (Eq, Ord, Show)
 
 -- NOTE: This is not inverse to @toSpecialCharacter@.
-fromSpecialCharacter ::
-  SpecialCharacter
-  -> Char
-fromSpecialCharacter BackSpace =
-  chr 0x08
-fromSpecialCharacter FormFeed =
-  chr 0x0C
-fromSpecialCharacter NewLine =
-  '\n'
-fromSpecialCharacter CarriageReturn =
-  '\r'
-fromSpecialCharacter Tab =
-  '\t'
-fromSpecialCharacter VerticalTab =
-  '\v'
-fromSpecialCharacter SingleQuote =
-  '\''
-fromSpecialCharacter DoubleQuote =
-  '"'
-fromSpecialCharacter Backslash =
-  '\\'
+fromSpecialCharacter :: SpecialCharacter -> Char
+fromSpecialCharacter BackSpace      = chr 0x08
+fromSpecialCharacter FormFeed       = chr 0x0C
+fromSpecialCharacter NewLine        = '\n'
+fromSpecialCharacter CarriageReturn = '\r'
+fromSpecialCharacter Tab            = '\t'
+fromSpecialCharacter VerticalTab    = '\v'
+fromSpecialCharacter SingleQuote    = '\''
+fromSpecialCharacter DoubleQuote    = '"'
+fromSpecialCharacter Backslash      = '\\'
 
 -- NOTE: This is not inverse to @fromSpecialCharacter@.
-toSpecialCharacter ::
-  Char
-  -> Optional SpecialCharacter
+toSpecialCharacter :: Char -> Optional SpecialCharacter
 toSpecialCharacter c =
   let table = ('b', BackSpace) :.
               ('f', FormFeed) :.

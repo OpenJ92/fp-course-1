@@ -179,7 +179,7 @@ flatten = foldRight (++) (Nil)
 -- 
 -- Look to construct as point free. flatten . map f did not work
 flatMap :: (a -> List b) -> List a -> List b
-flatMap f  xs = flatten $ map f xs
+flatMap f = flatten . map f
 
 -- | Flatten a list of lists to a list (again).
 -- HOWEVER, this time use the /flatMap/ function that you just wrote.

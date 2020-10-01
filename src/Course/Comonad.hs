@@ -17,9 +17,7 @@ import Course.Extend
 -- * The law of right identity
 --   `∀f. copure . (f <<=) == f
 class Extend f => Comonad f where
-  copure ::
-    f a
-    -> a
+  copure :: f a -> a
 
 -- | Implement the @Comonad@ instance for @ExactlyOne@.
 --

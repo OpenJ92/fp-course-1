@@ -127,7 +127,7 @@ infixl 1 >>=
 -- >>> ((\n -> n :. n :. Nil) <=< (\n -> n+1 :. n+2 :. Nil)) 1
 -- [2,2,3,3]
 (<=<) :: Monad f => (b -> f c) -> (a -> f b) -> a -> f c
-(<=<) bfc afb = \a -> (afb a) >>= bfc
+(<=<) bfc afb = \a -> bfc =<< (afb a)
 
 infixr 1 <=<
 

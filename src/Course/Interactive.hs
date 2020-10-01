@@ -13,25 +13,15 @@ import Course.List
 import Course.Optional
 
 -- | Eliminates any value over which a functor is defined.
-vooid ::
-  Functor m =>
-  m a
-  -> m ()
-vooid =
-  (<$>) (const ())
+vooid :: Functor m => m a -> m ()
+vooid = (<$>) (const ())
 
 -- | A version of @bind@ that ignores the result of the effect.
-(>-) ::
-  Monad m =>
-  m a
-  -> m b
-  -> m b
-(>-) a =
-  (>>=) a . const
+(>-) :: Monad m => m a -> m b -> m b
+(>-) a = (>>=) a . const
 
 -- | Runs an action until a result of that action satisfies a given predicate.
-untilM ::
-  Monad m =>
+untilM :: Monad m =>
   (a -> m Bool) -- ^ The predicate to satisfy to stop running the action.
   -> m a -- ^ The action to run until the predicate satisfies.
   -> m a
@@ -45,8 +35,7 @@ untilM p a =
       untilM p a
 
 -- | Example program that uses IO to echo back characters that are entered by the user.
-echo ::
-  IO ()
+echo :: IO ()
 echo =
   vooid (untilM
           (\c ->
@@ -62,8 +51,7 @@ echo =
            putStrLn (c :. Nil) >-
            pure c))
 
-data Op =
-  Op Char Chars (IO ()) -- keyboard entry, description, program
+data Op = Op Char Chars (IO ()) -- keyboard entry, description, program
 
 -- |
 --
@@ -80,10 +68,8 @@ data Op =
 -- /Tip:/ @putStr :: String -> IO ()@ -- Prints a string to standard output.
 --
 -- /Tip:/ @putStrLn :: String -> IO ()@ -- Prints a string and then a new line to standard output.
-convertInteractive ::
-  IO ()
-convertInteractive =
-  error "todo: Course.Interactive#convertInteractive"
+convertInteractive :: IO ()
+convertInteractive = ((<$>) . (<$>)) toUpper getLine >>= putStrLn
 
 -- |
 --
@@ -108,11 +94,12 @@ convertInteractive =
 -- /Tip:/ @putStr :: String -> IO ()@ -- Prints a string to standard output.
 --
 -- /Tip:/ @putStrLn :: String -> IO ()@ -- Prints a string and then a new line to standard output.
-reverseInteractive ::
-  IO ()
-reverseInteractive =
-  error "todo: Course.Interactive#reverseInteractive"
-
+reverseInteractive :: IO ()
+reverseInteractive = 
+	getLine             >>= \from         -> 
+        getLine             >>= \to           ->
+	readFile from       >>= \fContent     ->
+        writeFile to (reverse fContent)
 -- |
 --
 -- * Ask the user to enter a string to url-encode.
@@ -134,10 +121,14 @@ reverseInteractive =
 -- /Tip:/ @putStr :: String -> IO ()@ -- Prints a string to standard output.
 --
 -- /Tip:/ @putStrLn :: String -> IO ()@ -- Prints a string and then a new line to standard output.
-encodeInteractive ::
-  IO ()
-encodeInteractive =
-  error "todo: Course.Interactive#encodeInteractive"
+encode :: Char -> Chars
+encode ' '  = "\"%20\"@"
+encode '\t' = "\"%09\"@"
+encode '\"' =  "\"%22\"@"
+encode ch   = listh [ch]
+
+encodeInteractive :: IO ()
+encodeInteractive = getLine >>= \url -> putStrLn $ (flatten . map encode) url 
 
 interactive ::
   IO ()
