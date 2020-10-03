@@ -40,10 +40,7 @@ mapOptional =
 --
 -- >>> bindOptional (\n -> if even n then Full (n - 1) else Full (n + 1)) (Full 9)
 -- Full 10
-bindOptional ::
-  (a -> Optional b)
-  -> Optional a
-  -> Optional b
+bindOptional :: (a -> Optional b) -> Optional a -> Optional b
 bindOptional _ Empty    = Empty
 bindOptional f (Full x) = f x
 
